@@ -27,14 +27,24 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
+    # third-party
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    
     # local
     'core.apps.CoreConfig',
     'movies.apps.MoviesConfig',
     'series.apps.SeriesConfig',
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
 
 MIDDLEWARE = [
+    'allauth.account.middleware.AccountMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -60,6 +70,7 @@ if DEBUG:
     
     
 ROOT_URLCONF = 'StreamingSite.urls'
+SITE_ID = 1
 
 TEMPLATES = [
     {
@@ -149,3 +160,14 @@ AWS_S3_ENDPOINT_URL = "http://192.168.1.9:9000"
 AWS_S3_FILE_OVERWRITE = False   
 AWS_DEFAULT_ACL = "public-read"
 AWS_QUERYSTRING_AUTH = False
+
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
+# or 'email' or both {'username','email'}
+ACCOUNT_LOGIN_METHODS = {'username'}
+ACCOUNT_EMAIL_REQUIRED = True
+# change to 'mandatory' if you want email confirmation
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = True
