@@ -1,19 +1,87 @@
-<!DOCTYPE html>
 {% load static %}
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-    <link href="{% static "css/styles.css" %}" rel="stylesheet"/>
-    {% block title %}
-        <title>Homeflix</title>
-    {% endblock title %}
+    <title>{% block title %}CineVault{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    {% block extra_styles %}{% endblock %}
 </head>
 <body>
-    {% block body %}
 
-    {% endblock body %}
+<nav id="navbar">
+    <a href="{% url 'home' %}" class="nav-logo">Cine<span>Vault</span></a>
+    <ul class="nav-links">
+        <li><a href="{% url 'home' %}"         class="{% block nav_home %}{% endblock %}">Home</a></li>
+        <li><a href="{% url 'movies_list' %}"  class="{% block nav_movies %}{% endblock %}">Movies</a></li>
+        <li><a href="{% url 'series_list' %}"  class="{% block nav_series %}{% endblock %}">Series</a></li>
+        <li><a href="{% url 'categories' %}"   class="{% block nav_categories %}{% endblock %}">Browse</a></li>
+    </ul>
+    <div class="nav-actions">
+        <button class="nav-search" onclick="toggleSearch()" title="Search">&#8981;</button>
+        {% if user.is_authenticated %}
+            <a href="{% url 'profile' %}" class="nav-avatar">{{ user.username|first|upper }}</a>
+        {% else %}
+            <a href="{% url 'login' %}"    class="btn btn-ghost btn-sm">Sign In</a>
+            <a href="{% url 'register' %}" class="btn btn-primary btn-sm">Join Now</a>
+        {% endif %}
+    </div>
+</nav>
+
+<!-- Search Overlay -->
+<div id="search-overlay" class="search-overlay">
+    <button class="search-close-btn" onclick="toggleSearch()">&#10005;</button>
+    <p class="search-label">What are you looking for?</p>
+    <div class="search-input-wrap">
+        <form method="GET" action="{% url 'search' %}">
+            <input type="text" name="q" class="search-input" placeholder="Search movies, series..." autofocus>
+        </form>
+    </div>
+    <p class="search-hint">Press ESC to close</p>
+</div>
+
+<div id="toast"></div>
+
+{% block content %}{% endblock %}
+
+<footer>
+    <div class="footer-inner">
+        <div>
+            <div class="footer-logo">Cine<span>Vault</span></div>
+            <p class="footer-tagline">Stream everything. Miss nothing.</p>
+        </div>
+        <div class="footer-links">
+            <div class="footer-col">
+                <h4>Browse</h4>
+                <a href="{% url 'movies_list' %}">Movies</a>
+                <a href="{% url 'series_list' %}">Series</a>
+                <a href="{% url 'categories' %}">Categories</a>
+            </div>
+            <div class="footer-col">
+                <h4>Account</h4>
+                <a href="{% url 'login' %}">Sign In</a>
+                <a href="{% url 'register' %}">Register</a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">&copy; 2024 CineVault. All rights reserved.</div>
+</footer>
+
+<script src="{% static 'js/script.js' %}"></script>
+
+{% if messages %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        {% for message in messages %}
+            showToast("{{ message }}");
+        {% endfor %}
+    });
+</script>
+{% endif %}
+
+{% block extra_scripts %}{% endblock %}
 </body>
 </html>

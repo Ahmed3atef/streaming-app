@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block title %}{% if form_type == 'login' %}Sign In{% else %}Create Account{% endif %} — CineVault{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+
+    <!-- VISUAL SIDE -->
+    <div class="auth-visual">
+        <div class="auth-visual-bg"></div>
+        <div class="auth-visual-grid"></div>
+        <div class="auth-visual-content">
+            <a href="{% url 'home' %}" class="auth-logo">Cine<span>Vault</span></a>
+            <p class="auth-tagline">Stream Everything. Miss Nothing.</p>
+            <div class="auth-features">
+                <div class="auth-feature">
+                    <div class="auth-feature-icon">&#127916;</div>
+                    <div class="auth-feature-text">
+                        <strong>Thousands of Titles</strong>
+                        Movies and series from every genre
+                    </div>
+                </div>
+                <div class="auth-feature">
+                    <div class="auth-feature-icon">&#128241;</div>
+                    <div class="auth-feature-text">
+                        <strong>Watch Anywhere</strong>
+                        Stream on any device, anytime
+                    </div>
+                </div>
+                <div class="auth-feature">
+                    <div class="auth-feature-icon">&#9889;</div>
+                    <div class="auth-feature-text">
+                        <strong>HD Quality</strong>
+                        Crystal clear video with no buffering
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FORM SIDE -->
+    <div class="auth-form-side">
+        <div class="auth-form-wrap">
+
+            {% if form_type == 'login' %}
+            <h1 class="auth-form-title">Welcome back</h1>
+            <p class="auth-form-sub">
+                Don't have an account? <a href="{% url 'register' %}">Sign up free</a>
+            </p>
+
+            {% if form.errors %}
+            <div class="form-errors-box">
+                <p>Invalid username or password. Please try again.</p>
+            </div>
+            {% endif %}
+
+            <form method="POST" action="{% url 'login' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label" for="id_username">Username</label>
+                    <input type="text" name="username" id="id_username"
+                        class="form-input {% if form.username.errors %}error{% endif %}"
+                        placeholder="Enter your username"
+                        value="{{ form.username.value|default:'' }}"
+                        autocomplete="username">
+                    {% if form.username.errors %}
+                    <span class="form-error">{{ form.username.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="id_password">Password</label>
+                    <input type="password" name="password" id="id_password"
+                        class="form-input {% if form.password.errors %}error{% endif %}"
+                        placeholder="Enter your password"
+                        autocomplete="current-password">
+                    <a href="{% url 'password_reset' %}" class="forgot-link">Forgot password?</a>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" name="remember_me" id="remember_me">
+                    <label for="remember_me">Keep me signed in for 30 days</label>
+                </div>
+                <input type="hidden" name="next" value="{{ next }}">
+                <button type="submit" class="form-submit">Sign In</button>
+            </form>
+
+            {% else %}
+            <h1 class="auth-form-title">Create account</h1>
+            <p class="auth-form-sub">
+                Already have an account? <a href="{% url 'login' %}">Sign in</a>
+            </p>
+
+            {% if form.errors %}
+            <div class="form-errors-box">
+                {% for field in form %}{% for error in field.errors %}<p>{{ error }}</p>{% endfor %}{% endfor %}
+                {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="POST" action="{% url 'register' %}">
+                {% csrf_token %}
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="id_first_name">First Name</label>
+                        <input type="text" name="first_name" id="id_first_name"
+                            class="form-input" placeholder="John"
+                            value="{{ form.first_name.value|default:'' }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="id_last_name">Last Name</label>
+                        <input type="text" name="last_name" id="id_last_name"
+                            class="form-input" placeholder="Doe"
+                            value="{{ form.last_name.value|default:'' }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="id_username">Username</label>
+                    <input type="text" name="username" id="id_username"
+                        class="form-input {% if form.username.errors %}error{% endif %}"
+                        placeholder="Choose a username"
+                        value="{{ form.username.value|default:'' }}"
+                        autocomplete="username">
+                    {% if form.username.errors %}
+                    <span class="form-error">{{ form.username.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="id_email">Email</label>
+                    <input type="email" name="email" id="id_email"
+                        class="form-input {% if form.email.errors %}error{% endif %}"
+                        placeholder="john@example.com"
+                        value="{{ form.email.value|default:'' }}"
+                        autocomplete="email">
+                    {% if form.email.errors %}
+                    <span class="form-error">{{ form.email.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="id_password1">Password</label>
+                    <input type="password" name="password1" id="id_password1"
+                        class="form-input {% if form.password1.errors %}error{% endif %}"
+                        placeholder="Create a strong password"
+                        autocomplete="new-password">
+                    {% if form.password1.errors %}
+                    <span class="form-error">{{ form.password1.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="id_password2">Confirm Password</label>
+                    <input type="password" name="password2" id="id_password2"
+                        class="form-input {% if form.password2.errors %}error{% endif %}"
+                        placeholder="Repeat your password"
+                        autocomplete="new-password">
+                    {% if form.password2.errors %}
+                    <span class="form-error">{{ form.password2.errors.0 }}</span>
+                    {% endif %}
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" name="terms" id="terms" required>
+                    <label for="terms">
+                        I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+                    </label>
+                </div>
+                <button type="submit" class="form-submit">Create Account</button>
+            </form>
+            {% endif %}
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

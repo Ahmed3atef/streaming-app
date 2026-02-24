@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block title %}{{ series.name }} — CineVault{% endblock %}
+{% block nav_series %}active{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="detail-hero">
+    <div class="detail-bg">
+        {% if series.poster %}
+        <img src="{{ series.poster.url }}" alt="{{ series.name }}">
+        {% else %}
+        <div style="width:100%;height:100%;background:linear-gradient(135deg,#0a0f1a,#0d1017);"></div>
+        {% endif %}
+    </div>
+    <div class="detail-bg-gradient"></div>
+
+    <div class="detail-content">
+        <div class="breadcrumb">
+            <a href="{% url 'home' %}">Home</a>
+            <span class="breadcrumb-sep">/</span>
+            <a href="{% url 'series_list' %}">Series</a>
+            <span class="breadcrumb-sep">/</span>
+            <span>{{ series.name }}</span>
+        </div>
+        <h1 class="detail-title">{{ series.name }}</h1>
+        <div class="detail-badges">
+            {% for cat in series.category.all %}
+            <a href="{% url 'category_detail' cat.pk %}" class="detail-badge">{{ cat }}</a>
+            {% endfor %}
+        </div>
+        <div class="detail-stats">
+            <div class="detail-stat">
+                <div class="detail-stat-label">Year</div>
+                <div class="detail-stat-value">{{ series.year|date:"Y" }}</div>
+            </div>
+            <div class="detail-stat">
+                <div class="detail-stat-label">Seasons</div>
+                <div class="detail-stat-value">{{ series.seasons.count }}</div>
+            </div>
+            <div class="detail-stat">
+                <div class="detail-stat-label">Episodes</div>
+                <div class="detail-stat-value">{{ total_episodes }}</div>
+            </div>
+        </div>
+        {% if series.description %}
+        <p class="detail-desc">{{ series.description }}</p>
+        {% endif %}
+        <div class="detail-actions">
+            {% with first_ep=series.seasons.first.episodes.first %}
+            {% if first_ep %}
+            <a href="{% url 'episode_detail' first_ep.pk %}" class="btn btn-primary">&#9654; Play S1E1</a>
+            {% else %}
+            <button class="btn btn-primary" disabled style="opacity:0.5;cursor:not-allowed;">&#9654; Coming Soon</button>
+            {% endif %}
+            {% endwith %}
+            <button class="btn btn-ghost" onclick="showToast('Added to your watchlist!')">+ Watchlist</button>
+            <button class="btn btn-ghost" onclick="showToast('Share link copied!')">&#10548; Share</button>
+        </div>
+    </div>
+
+    {% if series.poster %}
+    <div class="detail-poster-float">
+        <img src="{{ series.poster.url }}" alt="{{ series.name }}">
+    </div>
+    {% endif %}
+</section>
+
+<!-- SEASONS & EPISODES -->
+<div class="seasons-section">
+    <h2>Episodes</h2>
+
+    {% if series.seasons.all %}
+    <div class="season-tabs">
+        {% for season in series.seasons.all %}
+        <button class="season-tab {% if forloop.first %}active{% endif %}"
+            onclick="switchSeason({{ forloop.counter0 }}, this)">
+            Season {{ season.number }}
+        </button>
+        {% endfor %}
+    </div>
+
+    {% for season in series.seasons.all %}
+    <div class="season-panel {% if forloop.first %}active{% endif %}" id="season-panel-{{ forloop.counter0 }}">
+        {% if season.description %}
+        <div class="season-header">{{ season.description }}</div>
+        {% endif %}
+        <div class="episode-list">
+            {% for episode in season.episodes.all %}
+            <a href="{% url 'episode_detail' episode.pk %}" class="episode-item">
+                <div class="episode-thumb">
+                    {% if episode.thumbnail %}
+                    <img src="{{ episode.thumbnail.url }}" alt="{{ episode.title }}">
+                    {% else %}
+                    <div class="episode-thumb-placeholder">&#127916;</div>
+                    {% endif %}
+                    <div class="ep-play-overlay">&#9654;</div>
+                    <div class="ep-progress-bar">
+                        <div class="ep-progress-fill" style="width:0%;"></div>
+                    </div>
+                </div>
+                <div class="episode-info">
+                    <div class="episode-num">S{{ season.number }} &middot; E{{ episode.number }}</div>
+                    <div class="episode-title">{{ episode.title }}</div>
+                    {% if episode.description %}
+                    <div class="episode-desc">{{ episode.description }}</div>
+                    {% endif %}
+                </div>
+                {% if episode.duration %}
+                <div class="episode-duration">{{ episode.duration }}</div>
+                {% endif %}
+            </a>
+            {% empty %}
+            <p style="color:var(--text-dim);padding:1.5rem;text-align:center;">No episodes in this season yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">&#128250;</div>
+        <h3>No seasons yet</h3>
+        <p>No seasons available. Check back soon.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- RELATED SERIES -->
+{% if related_series %}
+<section class="section">
+    <div class="section-header">
+        <h2 class="section-title">More Like This</h2>
+    </div>
+    <div class="cards-row">
+        {% for s in related_series %}
+        <a href="{% url 'series_detail' s.pk %}" class="media-card" style="text-decoration:none;">
+            {% if s.poster %}
+            <img src="{{ s.poster.url }}" alt="{{ s.name }}">
+            {% else %}
+            <div style="aspect-ratio:2/3;background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--muted);">&#128250;</div>
+            {% endif %}
+            <div class="card-overlay">
+                <div class="card-title">{{ s.name }}</div>
+                <div class="card-meta">
+                    <span>{{ s.year|date:"Y" }}</span>
+                    <span>{{ s.seasons.count }} seasons</span>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}

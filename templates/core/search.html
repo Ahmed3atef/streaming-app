@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% block title %}{% if query %}Search: {{ query }}{% else %}Search{% endif %} — CineVault{% endblock %}
+
+{% block content %}
+
+<div class="browse-header">
+    <h1>Search <span>Results</span></h1>
+    {% if query %}
+    <p>Showing results for &ldquo;<strong style="color:var(--white);">{{ query }}</strong>&rdquo;</p>
+    {% else %}
+    <p>Enter a title above to search the library</p>
+    {% endif %}
+</div>
+
+<!-- INLINE SEARCH BAR -->
+<div style="padding:1.5rem 4vw;background:var(--deep);border-bottom:1px solid var(--border);">
+    <form method="GET" action="{% url 'search' %}" style="max-width:600px;">
+        <div style="position:relative;">
+            <input
+                type="text"
+                name="q"
+                value="{{ query }}"
+                placeholder="Search movies, series..."
+                class="search-input"
+                style="padding-right:3rem;"
+            >
+            <button type="submit" style="
+                position:absolute;right:0.8rem;top:50%;transform:translateY(-50%);
+                background:none;border:none;color:var(--red);font-size:1.2rem;
+                cursor:pointer;padding:4px;
+            ">&#8981;</button>
+        </div>
+    </form>
+</div>
+
+{% if query %}
+
+    {% if not movies and not series %}
+    <!-- EMPTY STATE -->
+    <div class="empty-state" style="padding:6rem 2rem;">
+        <div class="empty-state-icon">&#128270;</div>
+        <h3>No results found</h3>
+        <p>Nothing matched &ldquo;{{ query }}&rdquo;. Try a different title or browse by genre.</p>
+        <a href="{% url 'categories' %}" class="btn btn-ghost" style="margin-top:1.5rem;display:inline-flex;">
+            Browse Library
+        </a>
+    </div>
+
+    {% else %}
+
+    <!-- RESULTS SUMMARY -->
+    <div style="padding:1.5rem 4vw 0;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+        <span class="results-count">
+            Found <strong>{{ movies|length|add:series|length }}</strong> result{{ movies|length|add:series|length|pluralize }}
+        </span>
+        <div style="display:flex;gap:0.5rem;margin-left:auto;">
+            <button class="type-btn active" onclick="filterType('all',this)">All</button>
+            <button class="type-btn" onclick="filterType('movies',this)">
+                Movies {% if movies %}<span style="color:var(--red);">({{ movies|length }})</span>{% endif %}
+            </button>
+            <button class="type-btn" onclick="filterType('series',this)">
+                Series {% if series %}<span style="color:var(--red);">({{ series|length }})</span>{% endif %}
+            </button>
+        </div>
+    </div>
+
+    {% if movies %}
+    <!-- MOVIES RESULTS -->
+    <section class="results-section" style="padding-bottom:1rem;">
+        <h3 style="color:var(--text-dim);font-size:0.8rem;font-weight:700;text-transform:uppercase;
+                   letter-spacing:1px;margin-bottom:1.2rem;padding-top:1.5rem;">
+            Movies
+        </h3>
+        <div class="results-grid">
+            {% for movie in movies %}
+            <a href="{% url 'movie_detail' movie.pk %}" class="media-card" data-type="movies" style="text-decoration:none;">
+                {% if movie.poster %}
+                <img src="{{ movie.poster.url }}" alt="{{ movie.name }}">
+                {% else %}
+                <div style="aspect-ratio:2/3;background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:2rem;">&#127916;</div>
+                {% endif %}
+                <div class="card-overlay">
+                    <div class="card-title">{{ movie.name }}</div>
+                    <div class="card-meta">
+                        <span>{{ movie.year|date:"Y" }}</span>
+                        {% for cat in movie.category.all|slice:":1" %}<span>{{ cat }}</span>{% endfor %}
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    {% if series %}
+    <!-- SERIES RESULTS -->
+    <section class="results-section">
+        <h3 style="color:var(--text-dim);font-size:0.8rem;font-weight:700;text-transform:uppercase;
+                   letter-spacing:1px;margin-bottom:1.2rem;padding-top:1.5rem;">
+            Series
+        </h3>
+        <div class="results-grid">
+            {% for s in series %}
+            <a href="{% url 'series_detail' s.pk %}" class="media-card" data-type="series" style="text-decoration:none;">
+                {% if s.poster %}
+                <img src="{{ s.poster.url }}" alt="{{ s.name }}">
+                {% else %}
+                <div style="aspect-ratio:2/3;background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:2rem;">&#128250;</div>
+                {% endif %}
+                <div class="card-overlay">
+                    <div class="card-title">{{ s.name }}</div>
+                    <div class="card-meta">
+                        <span>{{ s.year|date:"Y" }}</span>
+                        <span>{{ s.seasons.count }} season{{ s.seasons.count|pluralize }}</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    {% endif %}
+
+{% else %}
+<!-- NO QUERY YET — show suggestions -->
+<section class="section">
+    <div class="section-header">
+        <h2 class="section-title">Popular Right Now</h2>
+    </div>
+    <div class="cards-row">
+        {% for movie in popular_movies %}
+        <a href="{% url 'movie_detail' movie.pk %}" class="media-card" style="text-decoration:none;">
+            {% if movie.poster %}
+            <img src="{{ movie.poster.url }}" alt="{{ movie.name }}">
+            {% else %}
+            <div style="aspect-ratio:2/3;background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:2rem;">&#127916;</div>
+            {% endif %}
+            <div class="card-overlay">
+                <div class="card-title">{{ movie.name }}</div>
+                <div class="card-meta"><span>{{ movie.year|date:"Y" }}</span></div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}

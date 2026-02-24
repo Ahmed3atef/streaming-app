@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %}Browse — CineVault{% endblock %}
+{% block nav_categories %}active{% endblock %}
+
+{% block content %}
+
+<div class="browse-header">
+    <h1>Browse <span>Everything</span></h1>
+    <p>Explore by genre, or search the full library</p>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+    <span class="filter-label">Genre</span>
+    <a href="{% url 'categories' %}" class="filter-btn {% if not active_category %}active{% endif %}">All</a>
+    {% for cat in all_categories %}
+    <a href="{% url 'category_detail' cat.pk %}" class="filter-btn {% if active_category.pk == cat.pk %}active{% endif %}">{{ cat }}</a>
+    {% endfor %}
+    <div class="filter-type">
+        <button class="type-btn active" onclick="filterType('all', this)">All</button>
+        <button class="type-btn" onclick="filterType('movies', this)">Movies</button>
+        <button class="type-btn" onclick="filterType('series', this)">Series</button>
+    </div>
+</div>
+
+{% if not active_category %}
+<!-- GENRE TILES -->
+<div class="genre-grid">
+    {% for cat in all_categories %}
+    <a href="{% url 'category_detail' cat.pk %}" class="genre-card
+        {% if cat.name == 'a' %}genre-action
+        {% elif cat.name == 'c' %}genre-comedy
+        {% elif cat.name == 'd' %}genre-drama
+        {% elif cat.name == 'h' %}genre-horror
+        {% elif cat.name == 'r' %}genre-romance
+        {% elif cat.name == 's' %}genre-scifi
+        {% elif cat.name == 't' %}genre-thriller
+        {% elif cat.name == 'f' %}genre-fantasy
+        {% else %}genre-action{% endif %}
+    ">
+        <div class="genre-card-bg"></div>
+        <div>
+            <div class="genre-card-name">{{ cat }}</div>
+            <div class="genre-card-count">
+                {{ cat.movies.count }} movie{{ cat.movies.count|pluralize }} &middot;
+                {{ cat.series.count }} series
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+
+<section class="results-section">
+    <div class="section-header">
+        <h2 class="section-title">All Movies</h2>
+        <a href="{% url 'movies_list' %}" class="section-link">See All &rarr;</a>
+    </div>
+    <div class="results-grid" id="content-grid">
+        {% for movie in all_movies %}
+        <a href="{% url 'movie_detail' movie.pk %}" class="media-card" data-type="movies" style="text-decoration:none;">
+            {% if movie.poster %}
+            <img src="{{ movie.poster.url }}" alt="{{ movie.name }}">
+            {% else %}
+            <div style="aspect-ratio:2/3;background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:2rem;">&#127916;</div>
+            {% endif %}
+            <div class="card-overlay">
+                <div class="card-title">{{ movie.name }}</div>
+                <div class="card-meta"><span>{{ movie.year|date:"Y" }}</span></div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    <div class="section-header" style="margin-top:3rem;">
+        <h2 class="section-title">All Series</h2>
+        <a href="{% url 'series_list' %}" class="section-link">See All &rarr;</a>
+    </div>
+    <div class="results-grid">
+        {% for s in all_series %}
+        <a href="{% url 'series_detail' s.pk %}" class="media-card" data-type="series" style="text-decoration:none;">
+            {% if s.poster %}
+            <img src="{{ s.poster.url }}" alt="{{ s.name }}">
+            {% else %}
+            <div style="aspect-ratio:2/3;background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:2rem;">&#128250;</div>
+            {% endif %}
+            <div class="card-overlay">
+                <div class="card-title">{{ s.name }}</div>
+                <div class="card-meta"><span>{{ s.year|date:"Y" }}</span><span>{{ s.seasons.count }}s</span></div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+
+{% else %}
+<!-- FILTERED BY CATEGORY -->
+<section class="results-section">
+    <div class="results-header">
+        <h2 class="section-title">{{ active_category }}</h2>
+        <span class="results-count">
+            <strong>{{ movies.count|add:series.count }}</strong> titles
+        </span>
+    </div>
+
+    {% if movies %}
+    <h3 style="color:var(--text-dim);font-size:0.85rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:1rem;">Movies</h3>
+    <div class="results-grid" style="margin-bottom:3rem;">
+        {% for movie in movies %}
+        <a href="{% url 'movie_detail' movie.pk %}" class="media-card" style="text-decoration:none;">
+            {% if movie.poster %}
+            <img src="{{ movie.poster.url }}" alt="{{ movie.name }}">
+            {% else %}
+            <div style="aspect-ratio:2/3;background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:2rem;">&#127916;</div>
+            {% endif %}
+            <div class="card-overlay">
+                <div class="card-title">{{ movie.name }}</div>
+                <div class="card-meta"><span>{{ movie.year|date:"Y" }}</span></div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if series %}
+    <h3 style="color:var(--text-dim);font-size:0.85rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:1rem;">Series</h3>
+    <div class="results-grid">
+        {% for s in series %}
+        <a href="{% url 'series_detail' s.pk %}" class="media-card" style="text-decoration:none;">
+            {% if s.poster %}
+            <img src="{{ s.poster.url }}" alt="{{ s.name }}">
+            {% else %}
+            <div style="aspect-ratio:2/3;background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:2rem;">&#128250;</div>
+            {% endif %}
+            <div class="card-overlay">
+                <div class="card-title">{{ s.name }}</div>
+                <div class="card-meta"><span>{{ s.year|date:"Y" }}</span></div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if not movies and not series %}
+    <div class="empty-state">
+        <div class="empty-state-icon">&#127917;</div>
+        <h3>Nothing here yet</h3>
+        <p>No content in this category yet. Check back soon.</p>
+    </div>
+    {% endif %}
+</section>
+{% endif %}
+
+{% endblock %}

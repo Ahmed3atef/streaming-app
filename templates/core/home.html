@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}CineVault — Stream Everything{% endblock %}
+{% block nav_home %}active{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-bg">
+        {% if featured %}
+            <img src="{{ featured.poster.url }}" alt="{{ featured.name }}">
+        {% else %}
+            <div style="width:100%;height:100%;background:linear-gradient(135deg,#1a0a0f 0%,#0d1017 50%,#0a0f1a 100%);"></div>
+        {% endif %}
+    </div>
+    <div class="hero-gradient"></div>
+    <div class="hero-content">
+        <div class="hero-eyebrow">
+            <span class="hero-eyebrow-badge">Featured</span>
+            <span class="hero-eyebrow-text">Now Streaming</span>
+        </div>
+        {% if featured %}
+        <h1 class="hero-title">{{ featured.name }}</h1>
+        <div class="hero-meta">
+            <div class="hero-meta-item"><strong>{{ featured.year|date:"Y" }}</strong></div>
+            {% if featured.duration %}
+            <div class="hero-meta-item"><strong>{{ featured.duration }}</strong></div>
+            {% endif %}
+            {% for cat in featured.category.all %}
+            <div class="hero-meta-item">{{ cat }}</div>
+            {% endfor %}
+        </div>
+        <p class="hero-desc">{{ featured.description|truncatewords:35 }}</p>
+        <div class="hero-actions">
+            <a href="{% url 'movie_detail' featured.pk %}" class="btn btn-primary">&#9654; Watch Now</a>
+            <button class="btn btn-ghost" onclick="showToast('Added to your watchlist!')">+ Watchlist</button>
+        </div>
+        {% else %}
+        <h1 class="hero-title">Stream <em>Everything</em></h1>
+        <p class="hero-desc">Thousands of movies and series, all in one place. No ads, no limits.</p>
+        <div class="hero-actions">
+            <a href="{% url 'register' %}" class="btn btn-primary">Get Started Free</a>
+            <a href="{% url 'movies_list' %}" class="btn btn-ghost">Browse Library</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- CONTINUE WATCHING -->
+{% if user.is_authenticated and continue_watching %}
+<section class="section">
+    <div class="section-header">
+        <h2 class="section-title">Continue Watching</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;">
+        {% for item in continue_watching %}
+        <a href="{{ item.url }}" class="progress-card">
+            <img src="{{ item.poster.url }}" alt="{{ item.name }}">
+            <div class="progress-bar-wrap">
+                <div class="progress-bar-fill" style="width:{{ item.progress }}%;"></div>
+            </div>
+            <div class="progress-info">
+                <div class="progress-title">{{ item.name }}</div>
+                <div class="progress-sub">{{ item.progress }}% watched</div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- TRENDING MOVIES -->
+<section class="section">
+    <div class="section-header">
+        <h2 class="section-title">Trending Movies</h2>
+        <a href="{% url 'movies_list' %}" class="section-link">See All &rarr;</a>
+    </div>
+    <div class="cards-row">
+        {% for movie in trending_movies %}
+        <a href="{% url 'movie_detail' movie.pk %}" class="media-card" style="text-decoration:none;">
+            {% if movie.poster %}
+                <img src="{{ movie.poster.url }}" alt="{{ movie.name }}">
+            {% else %}
+                <div style="aspect-ratio:2/3;background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:2rem;">&#127916;</div>
+            {% endif %}
+            <div class="card-overlay">
+                <div class="card-title">{{ movie.name }}</div>
+                <div class="card-meta">
+                    <span>{{ movie.year|date:"Y" }}</span>
+                    {% for cat in movie.category.all|slice:":1" %}<span>{{ cat }}</span>{% endfor %}
+                </div>
+            </div>
+        </a>
+        {% empty %}
+        <p style="color:var(--text-dim);grid-column:1/-1;">No movies yet. <a href="/admin/" style="color:var(--red);">Add some &rarr;</a></p>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- POPULAR SERIES -->
+<section class="section">
+    <div class="section-header">
+        <h2 class="section-title">Popular Series</h2>
+        <a href="{% url 'series_list' %}" class="section-link">See All &rarr;</a>
+    </div>
+    <div class="wide-row">
+        {% for series in popular_series %}
+        <a href="{% url 'series_detail' series.pk %}" class="wide-card" style="text-decoration:none;">
+            {% if series.poster %}
+                <img src="{{ series.poster.url }}" alt="{{ series.name }}">
+            {% else %}
+                <div style="width:100%;height:100%;background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:3rem;">&#128250;</div>
+            {% endif %}
+            <div class="wide-card-always">
+                <div class="wide-card-title">{{ series.name }}</div>
+                <div class="wide-card-meta">{{ series.year|date:"Y" }}</div>
+            </div>
+            <div class="wide-card-overlay">
+                <div class="wide-card-title">{{ series.name }}</div>
+                <div class="wide-card-meta">{{ series.description|truncatewords:15 }}</div>
+                <div class="wide-card-btn">
+                    <span class="btn btn-primary btn-sm">&#9654; Watch</span>
+                </div>
+            </div>
+        </a>
+        {% empty %}
+        <p style="color:var(--text-dim);">No series yet.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- BROWSE BY GENRE -->
+<section class="section">
+    <div class="section-header">
+        <h2 class="section-title">Browse by Genre</h2>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:0.7rem;">
+        {% for cat in categories %}
+        <a href="{% url 'category_detail' cat.pk %}" class="tag" style="font-size:0.85rem;padding:6px 16px;">
+            {{ cat }}
+        </a>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}

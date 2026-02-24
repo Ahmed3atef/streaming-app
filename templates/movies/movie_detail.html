@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}{{ movie.name }} — CineVault{% endblock %}
+{% block nav_movies %}active{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="detail-hero">
+    <div class="detail-bg">
+        {% if movie.poster %}
+        <img src="{{ movie.poster.url }}" alt="{{ movie.name }}">
+        {% else %}
+        <div style="width:100%;height:100%;background:linear-gradient(135deg,#1a0a0f,#0d1017);"></div>
+        {% endif %}
+    </div>
+    <div class="detail-bg-gradient"></div>
+
+    <div class="detail-content">
+        <div class="breadcrumb">
+            <a href="{% url 'home' %}">Home</a>
+            <span class="breadcrumb-sep">/</span>
+            <a href="{% url 'movies_list' %}">Movies</a>
+            <span class="breadcrumb-sep">/</span>
+            <span>{{ movie.name }}</span>
+        </div>
+        <h1 class="detail-title">{{ movie.name }}</h1>
+        <div class="detail-badges">
+            {% for cat in movie.category.all %}
+            <a href="{% url 'category_detail' cat.pk %}" class="detail-badge">{{ cat }}</a>
+            {% endfor %}
+        </div>
+        <div class="detail-stats">
+            <div class="detail-stat">
+                <div class="detail-stat-label">Year</div>
+                <div class="detail-stat-value">{{ movie.year|date:"Y" }}</div>
+            </div>
+            {% if movie.duration %}
+            <div class="detail-stat">
+                <div class="detail-stat-label">Duration</div>
+                <div class="detail-stat-value">{{ movie.duration }}</div>
+            </div>
+            {% endif %}
+        </div>
+        {% if movie.description %}
+        <p class="detail-desc">{{ movie.description }}</p>
+        {% endif %}
+        <div class="detail-actions">
+            <button class="btn btn-primary" onclick="startPlayer()">&#9654; Play Movie</button>
+            <button class="btn btn-ghost" onclick="showToast('Added to your watchlist!')">+ Watchlist</button>
+            <button class="btn btn-ghost" onclick="showToast('Share link copied!')">&#10548; Share</button>
+        </div>
+    </div>
+
+    {% if movie.poster %}
+    <div class="detail-poster-float">
+        <img src="{{ movie.poster.url }}" alt="{{ movie.name }}">
+    </div>
+    {% endif %}
+</section>
+
+<!-- PLAYER -->
+<section class="player-section" id="player-section">
+    <div class="player-wrap">
+        {% if movie.media %}
+        <div class="player-placeholder" id="player-placeholder" onclick="loadVideo()">
+            <div class="play-btn-big">&#9654;</div>
+            <p style="color:var(--text-dim);font-size:0.9rem;">Click to play {{ movie.name }}</p>
+        </div>
+        <video id="movie-video" controls style="display:none;">
+            <source src="{{ movie.media.url }}">
+            Your browser does not support video.
+        </video>
+        {% else %}
+        <div class="player-placeholder" style="cursor:default;">
+            <div style="font-size:2rem;color:var(--muted);">&#127916;</div>
+            <p style="color:var(--text-dim);">Video not available yet</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- INFO GRID -->
+<div class="info-grid">
+    <div class="info-block">
+        <h3>Movie Details</h3>
+        <div class="info-row">
+            <span class="info-row-label">Title</span>
+            <span class="info-row-value">{{ movie.name }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-row-label">Release Year</span>
+            <span class="info-row-value">{{ movie.year|date:"Y" }}</span>
+        </div>
+        {% if movie.duration %}
+        <div class="info-row">
+            <span class="info-row-label">Duration</span>
+            <span class="info-row-value">{{ movie.duration }}</span>
+        </div>
+        {% endif %}
+        <div class="info-row">
+            <span class="info-row-label">Genres</span>
+            <span class="info-row-value">
+                {% for cat in movie.category.all %}{{ cat }}{% if not forloop.last %}, {% endif %}{% endfor %}
+            </span>
+        </div>
+    </div>
+    {% if movie.description %}
+    <div class="info-block">
+        <h3>Synopsis</h3>
+        <p style="color:var(--text-dim);line-height:1.8;font-size:0.92rem;">{{ movie.description }}</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- RELATED MOVIES -->
+{% if related_movies %}
+<section class="section">
+    <div class="section-header">
+        <h2 class="section-title">More Like This</h2>
+    </div>
+    <div class="cards-row">
+        {% for m in related_movies %}
+        <a href="{% url 'movie_detail' m.pk %}" class="media-card" style="text-decoration:none;">
+            {% if m.poster %}
+            <img src="{{ m.poster.url }}" alt="{{ m.name }}">
+            {% else %}
+            <div style="aspect-ratio:2/3;background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--muted);">&#127916;</div>
+            {% endif %}
+            <div class="card-overlay">
+                <div class="card-title">{{ m.name }}</div>
+                <div class="card-meta"><span>{{ m.year|date:"Y" }}</span></div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}
