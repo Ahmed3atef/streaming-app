@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}{{ episode.title }} — {{ series.name }} — CineVault{% endblock %}
+{% block nav_series %}active{% endblock %}
+
+{% block content %}
+
+<!-- EPISODE HERO INFO -->
+<div style="padding:7rem 4vw 2rem;background:var(--deep);border-bottom:1px solid var(--border);">
+    <div class="breadcrumb">
+        <a href="{% url 'home' %}">Home</a>
+        <span class="breadcrumb-sep">/</span>
+        <a href="{% url 'series_list' %}">Series</a>
+        <span class="breadcrumb-sep">/</span>
+        <a href="{% url 'series_detail' series.pk %}">{{ series.name }}</a>
+        <span class="breadcrumb-sep">/</span>
+        <span>S{{ season.number }}E{{ episode.number }}</span>
+    </div>
+
+    <div style="display:flex;align-items:flex-start;gap:2rem;flex-wrap:wrap;">
+        <div style="flex:1;min-width:260px;">
+            <p style="color:var(--red);font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.5rem;">
+                Season {{ season.number }} &middot; Episode {{ episode.number }}
+            </p>
+            <h1 style="font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,5vw,4rem);
+                       color:var(--white);letter-spacing:2px;line-height:1;margin-bottom:1rem;">
+                {{ episode.title }}
+            </h1>
+            <div style="display:flex;gap:1.5rem;margin-bottom:1rem;flex-wrap:wrap;">
+                <div>
+                    <div style="font-size:0.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px;">Series</div>
+                    <div style="font-size:0.9rem;color:var(--text);font-weight:600;">{{ series.name }}</div>
+                </div>
+                {% if episode.duration %}
+                <div>
+                    <div style="font-size:0.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px;">Duration</div>
+                    <div style="font-size:0.9rem;color:var(--text);font-weight:600;">{{ episode.duration }}</div>
+                </div>
+                {% endif %}
+            </div>
+            {% if episode.description %}
+            <p style="color:var(--text-dim);font-size:0.92rem;line-height:1.8;max-width:560px;">
+                {{ episode.description }}
+            </p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- PLAYER -->
+<section class="player-section" id="player-section">
+    <div class="player-wrap">
+        {% if episode.media %}
+        <div class="player-placeholder" id="player-placeholder" onclick="loadVideo()">
+            <div class="play-btn-big">&#9654;</div>
+            <p style="color:var(--text-dim);font-size:0.9rem;">
+                S{{ season.number }}E{{ episode.number }} &mdash; {{ episode.title }}
+            </p>
+        </div>
+        <video id="movie-video" controls style="display:none;">
+            <source src="{{ episode.media.url }}">
+            Your browser does not support video.
+        </video>
+        {% else %}
+        <div class="player-placeholder" style="cursor:default;">
+            <div style="font-size:2rem;color:var(--muted);">&#127916;</div>
+            <p style="color:var(--text-dim);">Video not available yet</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- NEXT EPISODE -->
+    {% if next_ep %}
+    <div style="max-width:1000px;margin:1.2rem auto 0;display:flex;justify-content:flex-end;">
+        <a href="{% url 'episode_detail' next_ep.pk %}" class="btn btn-ghost">
+            Next: S{{ season.number }}E{{ next_ep.number }} {{ next_ep.title }} &rarr;
+        </a>
+    </div>
+    {% endif %}
+</section>
+
+<!-- ALL EPISODES IN THIS SEASON -->
+<div style="max-width:1100px;margin:0 auto;padding:2.5rem 4vw;">
+    <div class="section-header">
+        <h2 class="section-title">Season {{ season.number }} Episodes</h2>
+        <a href="{% url 'series_detail' series.pk %}" class="section-link">All Seasons &rarr;</a>
+    </div>
+    <div class="episode-list">
+        {% for ep in season.episodes.all %}
+        <a href="{% url 'episode_detail' ep.pk %}" class="episode-item {% if ep.pk == episode.pk %}active{% endif %}"
+           style="{% if ep.pk == episode.pk %}border-color:var(--red);background:var(--card);{% endif %}">
+            <div class="episode-thumb">
+                {% if ep.thumbnail %}
+                <img src="{{ ep.thumbnail.url }}" alt="{{ ep.title }}">
+                {% else %}
+                <div class="episode-thumb-placeholder">&#127916;</div>
+                {% endif %}
+                <div class="ep-play-overlay">&#9654;</div>
+            </div>
+            <div class="episode-info">
+                <div class="episode-num">
+                    E{{ ep.number }}
+                    {% if ep.pk == episode.pk %}
+                    <span style="color:var(--red);margin-left:0.4rem;">&#9654; Now Playing</span>
+                    {% endif %}
+                </div>
+                <div class="episode-title">{{ ep.title }}</div>
+                {% if ep.description %}
+                <div class="episode-desc">{{ ep.description }}</div>
+                {% endif %}
+            </div>
+            {% if ep.duration %}
+            <div class="episode-duration">{{ ep.duration }}</div>
+            {% endif %}
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

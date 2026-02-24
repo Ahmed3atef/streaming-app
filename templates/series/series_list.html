@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Series — CineVault{% endblock %}
+{% block nav_series %}active{% endblock %}
+
+{% block content %}
+
+<div class="browse-header">
+    <h1>All <span>Series</span></h1>
+    <p>{{ series|length }} series in the library</p>
+</div>
+
+<div class="filter-bar">
+    <span class="filter-label">Sort</span>
+    <a href="?sort=-year" class="filter-btn {% if request.GET.sort == '-year' or not request.GET.sort %}active{% endif %}">Newest</a>
+    <a href="?sort=year"  class="filter-btn {% if request.GET.sort == 'year'  %}active{% endif %}">Oldest</a>
+    <a href="?sort=name"  class="filter-btn {% if request.GET.sort == 'name'  %}active{% endif %}">A – Z</a>
+</div>
+
+<section class="results-section">
+    <div class="wide-row" style="padding:0;">
+        {% for s in series %}
+        <a href="{% url 'series_detail' s.pk %}" class="wide-card" style="text-decoration:none;">
+            {% if s.poster %}
+            <img src="{{ s.poster.url }}" alt="{{ s.name }}">
+            {% else %}
+            <div style="width:100%;height:100%;background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:3rem;">&#128250;</div>
+            {% endif %}
+            <div class="wide-card-always">
+                <div class="wide-card-title">{{ s.name }}</div>
+                <div class="wide-card-meta">
+                    {{ s.year|date:"Y" }} &middot;
+                    {{ s.seasons.count }} season{{ s.seasons.count|pluralize }}
+                </div>
+            </div>
+            <div class="wide-card-overlay">
+                <div class="wide-card-title">{{ s.name }}</div>
+                <div class="wide-card-meta">{{ s.description|truncatewords:12 }}</div>
+                <div class="wide-card-btn">
+                    <span class="btn btn-primary btn-sm">&#9654; Watch</span>
+                </div>
+            </div>
+        </a>
+        {% empty %}
+        <div class="empty-state" style="grid-column:1/-1;">
+            <div class="empty-state-icon">&#128250;</div>
+            <h3>No series yet</h3>
+            <p>Add some series from the <a href="/admin/" style="color:var(--red);">admin panel</a>.</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}

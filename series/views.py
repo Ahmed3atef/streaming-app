@@ -6,7 +6,13 @@ class SeriesListView(ListView):
     model = Series
     template_name = 'series/series_list.html'
     context_object_name = 'series'
-    ordering = ['-year']
+
+    def get_queryset(self):
+        sort = self.request.GET.get('sort', '-year')
+        allowed = ['name', '-name', 'year', '-year']
+        if sort not in allowed:
+            sort = '-year'
+        return Series.objects.all().order_by(sort)
 
 
 class SeriesDetailView(DetailView):

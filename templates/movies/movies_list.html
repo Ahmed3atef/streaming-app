@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Movies — CineVault{% endblock %}
+{% block nav_movies %}active{% endblock %}
+
+{% block content %}
+
+<div class="browse-header">
+    <h1>All <span>Movies</span></h1>
+    <p>{{ movies|length }} movie{{ movies|length|pluralize }} in the library</p>
+</div>
+
+<div class="filter-bar">
+    <span class="filter-label">Sort</span>
+    <a href="?sort=-year"  class="filter-btn {% if request.GET.sort == '-year'  or not request.GET.sort %}active{% endif %}">Newest</a>
+    <a href="?sort=year"   class="filter-btn {% if request.GET.sort == 'year'   %}active{% endif %}">Oldest</a>
+    <a href="?sort=name"   class="filter-btn {% if request.GET.sort == 'name'   %}active{% endif %}">A – Z</a>
+</div>
+
+<section class="results-section">
+    <div class="results-grid">
+        {% for movie in movies %}
+        <a href="{% url 'movie_detail' movie.pk %}" class="media-card" style="text-decoration:none;">
+            {% if movie.poster %}
+            <img src="{{ movie.poster.url }}" alt="{{ movie.name }}">
+            {% else %}
+            <div style="aspect-ratio:2/3;background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:2rem;">&#127916;</div>
+            {% endif %}
+            <div class="card-overlay">
+                <div class="card-title">{{ movie.name }}</div>
+                <div class="card-meta">
+                    <span>{{ movie.year|date:"Y" }}</span>
+                    {% for cat in movie.category.all|slice:":1" %}<span>{{ cat }}</span>{% endfor %}
+                </div>
+            </div>
+        </a>
+        {% empty %}
+        <div class="empty-state" style="grid-column:1/-1;">
+            <div class="empty-state-icon">&#127916;</div>
+            <h3>No movies yet</h3>
+            <p>Add some movies from the <a href="/admin/" style="color:var(--red);">admin panel</a>.</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+{% endblock %}

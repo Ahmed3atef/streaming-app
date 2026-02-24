@@ -6,7 +6,13 @@ class MoviesListView(ListView):
     model = Movies
     template_name = 'movies/movies_list.html'
     context_object_name = 'movies'
-    ordering = ['-year']
+
+    def get_queryset(self):
+        sort = self.request.GET.get('sort', '-year')
+        allowed = ['name', '-name', 'year', '-year']
+        if sort not in allowed:
+            sort = '-year'
+        return Movies.objects.all().order_by(sort)
 
 
 class MovieDetailView(DetailView):
