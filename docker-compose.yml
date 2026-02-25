@@ -1,0 +1,10 @@
+services:
+  web:
+    build: .
+    container_name: cinevault
+    restart: always
+    ports:
+      - "8001:8000"
+    environment:
+      - DEBUG=False
+      - ALLOWED_HOSTS=cinevault.nexus.local,192.168.1.9

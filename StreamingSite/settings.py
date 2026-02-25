@@ -12,9 +12,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-x$$=9as-v%o&05ts@hv*c^b2srko-^5i6*2zd_qu22)6uh4!=2'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['cinevault.nexus.local', '192.168.1.9', 'localhost']
 
 
 # Application definition
