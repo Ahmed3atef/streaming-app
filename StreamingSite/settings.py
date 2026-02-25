@@ -146,6 +146,10 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE ='whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+FORCE_SCRIPT_NAME = '/cinevault'
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = None
+
 # Storage
 STORAGES = {
     "default": {
