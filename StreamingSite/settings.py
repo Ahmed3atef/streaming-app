@@ -147,8 +147,9 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE ='whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 FORCE_SCRIPT_NAME = '/cinevault'
-USE_X_FORWARDED_HOST = True
-SECURE_PROXY_SSL_HEADER = None
+LOGIN_URL = '/cinevault/accounts/login/'
+LOGIN_REDIRECT_URL = '/cinevault/'
+LOGOUT_REDIRECT_URL = '/cinevault/'
 
 # Storage
 STORAGES = {
@@ -168,10 +169,6 @@ AWS_S3_ENDPOINT_URL = "http://192.168.1.9:9000"
 AWS_S3_FILE_OVERWRITE = False   
 AWS_DEFAULT_ACL = "public-read"
 AWS_QUERYSTRING_AUTH = False
-
-LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
 
 # or 'email' or both {'username','email'}
 ACCOUNT_LOGIN_METHODS = {'username'}
